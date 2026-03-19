@@ -14,6 +14,8 @@ def main():
     data_path = "data/identity3-B_lora_data.csv"
     loader = FlightDataLoader(data_path, dt=0.1)
 
+    print(loader.dt)
+
     launch_idx = loader.indices['launch']
     touchdown_idx = loader.indices['touchdown']
     print(f"발사 인덱스: {launch_idx}, 착지 인덱스: {touchdown_idx}")
@@ -23,7 +25,7 @@ def main():
     ekf = AttitudeEKF(loader.q0, loader.P0, loader.Q, loader.R, loader.dt, loader.m_ref)
 
     # 모든 시점의 회전(자세)을 저장할 리스트 (발사 전까지는 q0로 유지)
-    rotators = [loader.q0] * loader.length
+    rotators = [loader.q0.copy() for _ in range(loader.length)]
 
     for i in range(launch_idx, touchdown_idx):
         ekf.predict(loader.gyro[i])
@@ -36,6 +38,7 @@ def main():
     # 3-1. IMU 궤적 (EKF 자세 + 진짜 RK4 적분 적용)
     imu_traj = IMUTrajectory(rotators, loader.acc, loader.dt, loader.g0)
     imu_traj.calculate_trajectory(launch_idx, touchdown_idx)
+    print(imu_traj.get_observer_acc(0))
 
     # 3-2. GPS 궤적 (하버사인 공식을 이용한 기하학적 궤적)
     gps_traj = GPSTrajectory(loader.gps_lat, loader.gps_lon, loader.altitude, start_idx=launch_idx)
@@ -58,6 +61,7 @@ def main():
     ax.set_xlabel("X Distance (m)")
     ax.set_ylabel("Y Distance (m)")
     ax.set_zlabel("Altitude Z (m)")
+
     ax.legend(loc='upper left')
     plt.grid(True)
     plt.show()

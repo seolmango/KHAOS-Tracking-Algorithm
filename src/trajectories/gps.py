@@ -3,8 +3,8 @@ import matplotlib.pyplot as plt
 
 class GPSTrajectory:
     def __init__(self, lat_data, lon_data, alt_data, start_idx = 0):
-        self.lat = lat_data
-        self.lon = lon_data
+        self.lat = np.radians(lat_data)
+        self.lon = np.radians(lon_data)
         self.alt = alt_data
         self.lat0 = self.lat[start_idx]
         self.lon0 = self.lon[start_idx]

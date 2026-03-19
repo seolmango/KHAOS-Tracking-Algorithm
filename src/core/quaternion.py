@@ -144,3 +144,6 @@ class Quaternion:
 
     def vector(self):
         return self.q[1:]
+
+    def copy(self):
+        return Quaternion(*self.q)

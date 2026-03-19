@@ -20,9 +20,9 @@ class FlightDataLoader:
         df = pd.read_csv(self.file_path)
 
         self.acc = np.column_stack([
-            -df['xAxisAcc'].to_numpy(),
-            -df['yAxisAcc'].to_numpy(),
-            -df['zAxisAcc'].to_numpy()
+            df['xAxisAcc'].to_numpy(),
+            df['yAxisAcc'].to_numpy(),
+            df['zAxisAcc'].to_numpy()
         ])
 
         self.gyro = np.column_stack([
@@ -46,7 +46,9 @@ class FlightDataLoader:
         self.altitude -= self.ground_altitude
 
         self.length = len(df)
-        self.time = df['deviceTime'].to_numpy() / 1000.0 / self.dt
+        self.dt = np.median(np.diff(df['deviceTime'].to_numpy())) / 1000.0
+        if self.dt <= 0:
+            self.dt = 0.01
 
     def _find_flight_phases(self):
         self.indices['stand_by'] = 0

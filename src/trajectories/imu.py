@@ -20,10 +20,9 @@ class IMUTrajectory:
         a_body = self.acc[index]
 
         a_body_quat = Quaternion(0.0, a_body[0], a_body[1], a_body[2])
-        a_obs_quat = q * a_body_quat * q.conjugate()
+        a_obs_quat = q.conjugate() * a_body_quat * q
 
-        # 중력 보상
-        return a_obs_quat.vector() - np.array([0.0, 0.0, self.gravity])
+        return a_obs_quat.vector() - np.array([0.0, 0.0, -self.gravity])
 
     def calculate_trajectory(self, launch_idx, touchdown_idx):
         vel = np.array([0.0, 0.0, 0.0])
